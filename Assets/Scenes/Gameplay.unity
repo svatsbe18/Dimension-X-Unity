@@ -224,7 +224,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 996cf02b7b10afd4ca58225fc75bd191, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialMoveSpeed: 20
+  initialMoveSpeed: 15
+  moveSpeed: 0
   spaceshipExhaust: {fileID: 164121833}
 --- !u!54 &258955518
 Rigidbody:
@@ -1293,7 +1294,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trackPrefab: {fileID: 2996543514160307935, guid: ef16b417ce0e6c642835dda4bf71b010, type: 3}
-  startTrackMoveSpeed: 10
+  startTrackMoveSpeed: 15
   trackMoveSpeed: 20
   speedIncrementer: 2
   timeToIncreaseSpeed: 5
@@ -1591,7 +1592,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2092520592
 Transform:
   m_ObjectHideFlags: 0

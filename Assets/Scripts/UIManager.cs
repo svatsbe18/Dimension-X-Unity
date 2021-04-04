@@ -19,7 +19,16 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         startScore = (int)Time.time;
-        highScore = PlayerPrefs.GetInt("HighScore", 0);
+        
+        PlayerData data = SaveSystem.LoadPlayer();
+        if(data==null)
+        {
+            highScore = 0;
+        }
+        else
+        {
+            highScore = data.HighScore;
+        }
         highScoreText.text = "High Score : " + highScore;
 
         scoreText.gameObject.SetActive(true);
@@ -44,7 +53,7 @@ public class UIManager : MonoBehaviour
     {
         if(score>highScore)
         {
-            PlayerPrefs.SetInt("HighScore", score);
+            SaveSystem.SavePlayer(new PlayerData(score));
         }
     }
 
@@ -53,7 +62,9 @@ public class UIManager : MonoBehaviour
         score = 0;
         startScore = (int)Time.time;
 
-        highScore = PlayerPrefs.GetInt("HighScore", 0);
+        PlayerData data = SaveSystem.LoadPlayer();
+        highScore = data.HighScore;
+
         highScoreText.text = "High Score : " + highScore;
         gameOverPanel.SetActive(false);
         GameManager.gm.PlayAgain();

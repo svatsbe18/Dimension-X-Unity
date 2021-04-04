@@ -5,7 +5,7 @@ using UnityEngine;
 public class SpaceshipController : MonoBehaviour
 {
     [SerializeField] float initialMoveSpeed = 5f;
-    float moveSpeed;
+    [SerializeField] float moveSpeed;
 
     [SerializeField] GameObject spaceshipExhaust;
 

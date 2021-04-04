@@ -8,12 +8,11 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] GameObject trackPrefab;
     public float startTrackMoveSpeed = 20f;
-    [HideInInspector] public float trackMoveSpeed;
+    public float trackMoveSpeed;
     [SerializeField] float speedIncrementer = 2f;
     [SerializeField] float timeToIncreaseSpeed = 2f;
     float currentTime;
 
-    GameObject player;
     SpaceshipController playerController;
 
     UIManager ui;
@@ -33,8 +32,9 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1;
 
-        player = GameObject.FindGameObjectWithTag("Player");
-        playerController = player.GetComponent<SpaceshipController>();
+        //player = GameObject.FindGameObjectWithTag("Player");
+        //playerController = player.GetComponent<SpaceshipController>();
+        playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<SpaceshipController>();
 
         currentTime = timeToIncreaseSpeed;
         trackMoveSpeed = startTrackMoveSpeed;
@@ -52,6 +52,11 @@ public class GameManager : MonoBehaviour
 
             playerController.MoveSpeed += speedIncrementer;
         }
+    }
+
+    void OnEnable()
+    {
+        PlayAgain();
     }
 
     void TrackCreator()
@@ -84,6 +89,10 @@ public class GameManager : MonoBehaviour
         destroyTracks = true;
         Invoke("TrackCreator", 0.1f);
         //TrackCreator();
+        if(playerController==null)
+        {
+            playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<SpaceshipController>();
+        }
         playerController.PlayAgain();
     }
 }
