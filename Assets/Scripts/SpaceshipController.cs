@@ -1,42 +1,68 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityStandardAssets.CrossPlatformInput;
 
+/// <summary>
+/// Script for controlling the Player (Spaceship)
+/// </summary>
 public class SpaceshipController : MonoBehaviour
 {
+    [Tooltip("Set the initial move speed of the spaceship")]
     [SerializeField] float initialMoveSpeed = 5f;
-    [SerializeField] float moveSpeed;
+    float moveSpeed;
 
+    [Tooltip("Reference to the exhaust of the spaceship")]
     [SerializeField] GameObject spaceshipExhaust;
 
+    [Tooltip("Reference to the Audio Source of the spaceship")]
+    [SerializeField] AudioSource spaceshipAudio;
+
+    [SerializeField] AudioSource backgroundAudio;
+
+    [SerializeField] AudioClip spaceshipSound;
+    [SerializeField] AudioClip crashSound;
+    [SerializeField] AudioClip specialEffectSound;
+
+    /// <summary>
+    /// Can the player move right?
+    /// </summary>
     bool canMoveRight = true;
+
+    /// <summary>
+    /// Can the player move left?
+    /// </summary>
     bool canMoveLeft = true;
 
+    /// <summary>
+    /// For getting and setting the move speed of the player (spaceship)
+    /// </summary>
     public float MoveSpeed
     {
         get { return moveSpeed; }
         set { moveSpeed = value; }
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         moveSpeed = initialMoveSpeed;
         spaceshipExhaust.SetActive(true);
+
+        if(spaceshipAudio==null)
+        {
+            spaceshipAudio = GetComponentInChildren<AudioSource>();
+        }
+        spaceshipAudio.clip = spaceshipSound;
+        spaceshipAudio.loop = true;
+        spaceshipAudio.Play();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        float horizontal= Input.GetAxis("Horizontal");
+        float horizontal = CrossPlatformInputManager.GetAxis("Horizontal");  //Getting input for the horizontal movement
         float z = transform.position.z;
-        if (Application.isMobilePlatform)
-        {
-            Vector3 pos = transform.position;
-            pos.y = Vector3.Dot(Input.gyro.gravity, Vector3.up) * moveSpeed;
-            transform.position = pos;
-        }
-
+       
+        //Applying the horizontal movement
         if (horizontal > 0 && canMoveRight)
         {
             z = transform.position.z - horizontal * moveSpeed * Time.deltaTime;
@@ -47,7 +73,8 @@ public class SpaceshipController : MonoBehaviour
         }
         transform.position = new Vector3(transform.position.x, transform.position.y, z);
 
-        if(transform.position.z<=-13)
+        //Clamping the horizontal movement
+        if(transform.position.z <= -13)
         {
             transform.position = new Vector3(transform.position.x, transform.position.y, -13);
         }
@@ -55,27 +82,98 @@ public class SpaceshipController : MonoBehaviour
         {
             transform.position = new Vector3(transform.position.x, transform.position.y, 13);
         }
+
+        if(Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            if(GameManager.gm.slowMotion)
+            {
+                GameManager.gm.DeactivateSlowMotionEffect();
+                DeactivateSpecialEffectSound();
+            }
+            else if(!GameManager.gm.phaseThrough)
+            {
+                GameManager.gm.ActivateSlowMotionEffect();
+                ActivateSpecialEffectSound();
+            }
+        }
+
+        if(Input.GetKeyDown(KeyCode.LeftAlt))
+        {
+            if(GameManager.gm.phaseThrough)
+            {
+                GameManager.gm.DeactivatePhaseThroughEffect();
+                DeactivateSpecialEffectSound();
+            }
+            else if(!GameManager.gm.slowMotion)
+            {
+                GameManager.gm.ActivatePhaseThroughEffect();
+                ActivateSpecialEffectSound();
+            }
+        }
     }
 
+    public void ActivateSpecialEffectSound()
+    {
+        backgroundAudio.Stop();
+        spaceshipAudio.Stop();
+        spaceshipAudio.clip = specialEffectSound;
+        spaceshipAudio.spatialBlend = 0;
+        spaceshipAudio.Play();
+    }
+
+    public void DeactivateSpecialEffectSound()
+    {
+        backgroundAudio.Play();
+        spaceshipAudio.Stop();
+        spaceshipAudio.clip = spaceshipSound;
+        spaceshipAudio.spatialBlend = 1;
+        spaceshipAudio.Play();
+    }
+
+    /// <summary>
+    /// This function is called when you want to play again
+    /// </summary>
     public void PlayAgain()
     {
+        canMoveLeft = true;
+        canMoveRight = true;
         moveSpeed = initialMoveSpeed;
         transform.position = new Vector3();
         spaceshipExhaust.SetActive(true);
+        spaceshipAudio.clip = spaceshipSound;
+        spaceshipAudio.loop = true;
+        spaceshipAudio.Play();
+    }
+
+    void GameOver()
+    {
+        GameManager.gm.GameOver();
+        spaceshipAudio.Stop();
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        //To check wether we have collided with an obstacle
         if (other.gameObject.tag == "Obstacle")
         {
-            GameManager.gm.GameOver();
-            spaceshipExhaust.SetActive(false);
+            if (!GameManager.gm.phaseThrough)
+            {
+                this.enabled = false;
+                GameManager.gm.gameOver = true;
+                GameManager.gm.trackMoveSpeed = 0;
+                spaceshipExhaust.SetActive(false);
+                spaceshipAudio.Stop();
+                spaceshipAudio.PlayOneShot(crashSound);
+                Invoke("GameOver", crashSound.length);
+            }
         }
+
         if (other.gameObject.tag == "LeftBorder")
         {
             Debug.Log("LeftBorder");
             canMoveLeft = false;
         }
+
         if (other.gameObject.tag == "RightBorder")
         {
             Debug.Log("RightBorder");

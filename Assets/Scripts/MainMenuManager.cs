@@ -5,24 +5,27 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    [SerializeField] AudioSource source;
+    [SerializeField] AudioClip buttonClip;
 
     public void HandlePlayButton()
+    {
+        source.PlayOneShot(buttonClip);
+        Invoke("Play", buttonClip.length);
+    }
+
+    void Play()
     {
         SceneManager.LoadScene(1);
     }
 
     public void HandleExitButton()
+    {
+        source.PlayOneShot(buttonClip);
+        Invoke("Exit", buttonClip.length);
+    }
+
+    void Exit()
     {
         Application.Quit();
     }
