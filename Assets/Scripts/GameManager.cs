@@ -82,6 +82,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] float timeToIncreaseSpeed = 2f;
     float currentTime;
 
+    [SerializeField] Timer pauseTimer;
+
     SpaceshipController playerController;
 
     UIManager ui;
@@ -106,6 +108,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     [HideInInspector] public bool gameOver = false;
 
+    [HideInInspector] public bool paused = false;
+
     void Awake()
     { 
         if(gm==null)
@@ -123,8 +127,6 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        Time.timeScale = 1;
-
         currentTime = timeToIncreaseSpeed;
         trackMoveSpeed = startTrackMoveSpeed;
 
@@ -152,6 +154,8 @@ public class GameManager : MonoBehaviour
 
         whiteBalance.active = false;
         vignette.active = false;
+
+        pauseTimer.Initiate();
     }
 
     void Update()
@@ -165,7 +169,7 @@ public class GameManager : MonoBehaviour
         {
             currentTime += timeToIncreaseSpeed;
 
-            if (!slowMotion)
+            if (!slowMotion && !paused)
             {
                 trackMoveSpeed += speedIncrementer;
 
@@ -251,6 +255,21 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void Pause()
+    {
+        paused = true;
+        Time.timeScale = 0;
+        ui.Pause();
+    }
+
+    public void Resume()
+    {
+        paused = false;
+        Time.timeScale = 1;
+        pauseTimer.Initiate();
+        ui.Resume();
+    }
+
     /// <summary>
     /// Called when the Game is Over
     /// </summary>
@@ -279,6 +298,7 @@ public class GameManager : MonoBehaviour
         gameOver = false;
 
         Time.timeScale = 1;
+        
         trackMoveSpeed = startTrackMoveSpeed;
 
         slowMotionPower = 1;
@@ -298,8 +318,9 @@ public class GameManager : MonoBehaviour
             vignette.active = false;
         }
 
+        pauseTimer.Initiate();
+        
         TrackCreator();
-        //Invoke("TrackCreator", 0.1f);
         playerController.PlayAgain();
     }
 
@@ -308,6 +329,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void ActivateSlowMotionEffect()
     {
+        playerController.ActivateSpecialEffectSound();
+
         trackMoveSpeed /= 2;
 
         whiteBalance.temperature.value = whiteBalance.temperature.max;
@@ -327,6 +350,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void DeactivateSlowMotionEffect()
     {
+        playerController.DeactivateSpecialEffectSound();
+
         trackMoveSpeed *= 2;
 
         whiteBalance.temperature.value = 0;
@@ -342,6 +367,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void ActivatePhaseThroughEffect()
     {
+        playerController.ActivateSpecialEffectSound();
+
         whiteBalance.tint.value = whiteBalance.tint.max;
         whiteBalance.active = true;
 
@@ -359,6 +386,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void DeactivatePhaseThroughEffect()
     {
+        playerController.DeactivateSpecialEffectSound();
+
         whiteBalance.tint.value = 0;
         whiteBalance.active = false;
 

@@ -34,6 +34,8 @@ public class SpaceshipController : MonoBehaviour
     /// </summary>
     bool canMoveLeft = true;
 
+    bool pause = false;
+
     /// <summary>
     /// For getting and setting the move speed of the player (spaceship)
     /// </summary>
@@ -88,12 +90,10 @@ public class SpaceshipController : MonoBehaviour
             if(GameManager.gm.slowMotion)
             {
                 GameManager.gm.DeactivateSlowMotionEffect();
-                DeactivateSpecialEffectSound();
             }
             else if(!GameManager.gm.phaseThrough)
             {
                 GameManager.gm.ActivateSlowMotionEffect();
-                ActivateSpecialEffectSound();
             }
         }
 
@@ -102,12 +102,24 @@ public class SpaceshipController : MonoBehaviour
             if(GameManager.gm.phaseThrough)
             {
                 GameManager.gm.DeactivatePhaseThroughEffect();
-                DeactivateSpecialEffectSound();
             }
             else if(!GameManager.gm.slowMotion)
             {
                 GameManager.gm.ActivatePhaseThroughEffect();
-                ActivateSpecialEffectSound();
+            }
+        }
+
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            if(pause)
+            {
+                pause = false;
+                GameManager.gm.Resume();
+            }
+            else
+            {
+                pause = true;
+                GameManager.gm.Pause();
             }
         }
     }
