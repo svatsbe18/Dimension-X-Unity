@@ -38,7 +38,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] AudioClip buttonClip;
 
     int highScore;
-    int startScore;
+    int startTime;
     int score;
 
     Animator phaseThroughAnimator;
@@ -49,7 +49,7 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        startScore = (int)Time.time;
+        startTime = (int)Time.time;
 
         //Loading the initial data of the player
         PlayerData data = SaveSystem.LoadPlayer();
@@ -84,7 +84,12 @@ public class UIManager : MonoBehaviour
         {
             return;
         }
-        score = (int)Time.time - startScore;
+
+        score = (int)Time.time - startTime - GameManager.gm.timesPaused * 3;
+        if(score<0)
+        {
+            score = 0;
+        }
         scoreText.text = "Score : " + score;
 
         slowMotionBar.value = 1 - GameManager.gm.slowMotionPower;
@@ -164,7 +169,7 @@ public class UIManager : MonoBehaviour
         source.PlayOneShot(buttonClip);
 
         score = 0;
-        startScore = (int)Time.time;
+        startTime = (int)Time.time;
 
         PlayerData data = SaveSystem.LoadPlayer();
         highScore = data.HighScore;

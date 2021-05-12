@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class Timer : MonoBehaviour
 {
-    [SerializeField] float time = 3f;
+    public float time = 3f;
 
     Text text;
 
@@ -34,8 +34,11 @@ public class Timer : MonoBehaviour
     public void Initiate()
     {
         gameObject.SetActive(true);
-        currentTrackMoveSpeed = GameManager.gm.trackMoveSpeed;
-        GameManager.gm.trackMoveSpeed = 0;
+        if (GameManager.gm.trackMoveSpeed != 0)
+        {
+            currentTrackMoveSpeed = GameManager.gm.trackMoveSpeed;
+            GameManager.gm.trackMoveSpeed = 0;
+        }
         GameManager.gm.paused = true;
         stopTime = Time.time + time;
         Debug.Log("Timer initiated");

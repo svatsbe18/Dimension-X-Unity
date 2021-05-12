@@ -108,7 +108,15 @@ public class GameManager : MonoBehaviour
     /// </summary>
     [HideInInspector] public bool gameOver = false;
 
+    /// <summary>
+    /// Is the game paused?
+    /// </summary>
     [HideInInspector] public bool paused = false;
+
+    /// <summary>
+    /// How many times has the game been paused
+    /// </summary>
+    [HideInInspector] public int timesPaused = 0;
 
     void Awake()
     { 
@@ -155,7 +163,9 @@ public class GameManager : MonoBehaviour
         whiteBalance.active = false;
         vignette.active = false;
 
+        timesPaused = 0;
         pauseTimer.Initiate();
+        timesPaused++;
     }
 
     void Update()
@@ -268,6 +278,7 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1;
         pauseTimer.Initiate();
         ui.Resume();
+        timesPaused++;
     }
 
     /// <summary>
@@ -318,7 +329,9 @@ public class GameManager : MonoBehaviour
             vignette.active = false;
         }
 
+        timesPaused = 0;
         pauseTimer.Initiate();
+        timesPaused++;
         
         TrackCreator();
         playerController.PlayAgain();
