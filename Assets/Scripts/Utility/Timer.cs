@@ -2,12 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class Timer : MonoBehaviour
 {
     public float time = 3f;
 
-    Text text;
+    TextMeshProUGUI text;
 
     float stopTime;
 
@@ -15,7 +16,7 @@ public class Timer : MonoBehaviour
 
     void Start()
     {
-        text = GetComponent<Text>();
+        text = GetComponent<TextMeshProUGUI>();
     }
 
     void Update()
@@ -26,20 +27,20 @@ public class Timer : MonoBehaviour
         if(Time.time>=stopTime)
         {
             gameObject.SetActive(false);
-            GameManager.gm.trackMoveSpeed = currentTrackMoveSpeed;
-            GameManager.gm.paused = false;
+            GameManager.gm.TrackMoveSpeed = currentTrackMoveSpeed;
+            GameManager.gm.Paused = false;
         }
     }
 
     public void Initiate()
     {
         gameObject.SetActive(true);
-        if (GameManager.gm.trackMoveSpeed != 0)
+        if (GameManager.gm.TrackMoveSpeed != 0)
         {
-            currentTrackMoveSpeed = GameManager.gm.trackMoveSpeed;
-            GameManager.gm.trackMoveSpeed = 0;
+            currentTrackMoveSpeed = GameManager.gm.TrackMoveSpeed;
+            GameManager.gm.TrackMoveSpeed = 0;
         }
-        GameManager.gm.paused = true;
+        GameManager.gm.Paused = true;
         stopTime = Time.time + time;
         Debug.Log("Timer initiated");
     }

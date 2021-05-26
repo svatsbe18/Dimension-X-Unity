@@ -16,15 +16,16 @@ public class TrackMover : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float newX = transform.position.x - GameManager.gm.trackMoveSpeed * Time.deltaTime;
+        float newX = transform.position.x - GameManager.gm.TrackMoveSpeed * Time.deltaTime;
         transform.position = new Vector3(newX, transform.position.y, transform.position.z);
         if(transform.position.x<=-50)
         {
+            GameManager.gm.TrackDestroyed();
             GameManager.gm.TrackGenerator(100, 0);
             Destroy(this.gameObject);
         }
 
-        if(GameManager.gm.destroyTracks)
+        if(GameManager.gm.DestroyTracks)
         {
             Destroy(this.gameObject);
         }

@@ -9,19 +9,21 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] Vector3 positionOffset;
     [SerializeField] Vector3 rotationOffset;
 
+    [SerializeField] float smoothPositionTime = 5;
+    [SerializeField] float smoothRotationTime = 5;
+
     // Start is called before the first frame update
     void Start()
     {
         
     }
 
-    // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
         Vector3 position = target.position + positionOffset;
         Vector3 eulerAngles = target.eulerAngles + rotationOffset;
 
-        transform.position = position;
-        transform.eulerAngles = eulerAngles;
+        transform.position = Vector3.Lerp(transform.position, position, smoothPositionTime * Time.deltaTime);
+        transform.eulerAngles = Vector3.Slerp(transform.eulerAngles, eulerAngles, smoothRotationTime * Time.deltaTime);
     }
 }

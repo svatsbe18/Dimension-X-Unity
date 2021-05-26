@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// For Managing the UI of the game
@@ -10,10 +11,10 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     [Tooltip("The Text component that shows the current score of the player")]
-    [SerializeField] Text scoreText;
+    [SerializeField] TextMeshProUGUI scoreText;
 
     [Tooltip("The Text component that show the high score of the player")]
-    [SerializeField] Text highScoreText;
+    [SerializeField] TextMeshProUGUI highScoreText;
 
     [Tooltip("The slider component to show the remaining power of the Slow Motion Effect")]
     [SerializeField] Slider slowMotionBar;
@@ -30,12 +31,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] Text gameOverHighScore;
 
     [SerializeField] GameObject optionsPanel;
-
-    [SerializeField] AudioSource source;
-
-    [SerializeField] AudioClip backgroundClip;
-    [SerializeField] AudioClip gameOverClip;
-    [SerializeField] AudioClip buttonClip;
 
     int highScore;
     int startTime;
@@ -72,28 +67,24 @@ public class UIManager : MonoBehaviour
 
         phaseThroughAnimator = phaseThroughBar.gameObject.GetComponent<Animator>();
         slowMotionAnimator = slowMotionBar.gameObject.GetComponent<Animator>();
-
-        source.clip = backgroundClip;
-        source.loop = true;
-        source.Play();
     }
 
     void Update()
     {
-        if (GameManager.gm.gameOver)
+        if (GameManager.gm.IsGameOver)
         {
             return;
         }
 
-        score = (int)Time.time - startTime - GameManager.gm.timesPaused * 3;
+        score = (int)Time.time - startTime - GameManager.gm.TimesPaused * 3;
         if(score<0)
         {
             score = 0;
         }
         scoreText.text = "Score : " + score;
 
-        slowMotionBar.value = 1 - GameManager.gm.slowMotionPower;
-        phaseThroughBar.value = 1 - GameManager.gm.phaseThroughPower;
+        slowMotionBar.value = 1 - GameManager.gm.SlowMotionPower;
+        phaseThroughBar.value = 1 - GameManager.gm.PhaseThroughPower;
 
         if (slowMotionBar.value == slowMotionBar.maxValue)
         {
@@ -142,10 +133,6 @@ public class UIManager : MonoBehaviour
         gameOverScore.text = "Score : " + score;
         gameOverHighScore.text = "High Score : " + highScore;
 
-        source.Stop();
-        source.clip = gameOverClip;
-        source.Play();
-
         SaveScore();
     }
 
@@ -166,8 +153,8 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void HandlePlayAgainButton()
     {
-        source.PlayOneShot(buttonClip);
-
+        AudioManager.instance.ButtonClicked();
+        
         score = 0;
         startTime = (int)Time.time;
 
@@ -176,10 +163,6 @@ public class UIManager : MonoBehaviour
 
         highScoreText.text = "High Score : " + highScore;
         gameOverPanel.SetActive(false);
-
-        source.clip = backgroundClip;
-        source.loop = true;
-        source.Play();
 
         GameManager.gm.PlayAgain();
     }
@@ -192,15 +175,15 @@ public class UIManager : MonoBehaviour
 
     public void HandleSlowMotionEffect()
     {
-        if (GameManager.gm.gameOver)
+        if (GameManager.gm.IsGameOver)
         {
             return;
         }
-        if (GameManager.gm.slowMotion)
+        if (GameManager.gm.SlowMotion)
         {
             GameManager.gm.DeactivateSlowMotionEffect();
         }
-        else if (!GameManager.gm.phaseThrough)
+        else if (!GameManager.gm.PhaseThrough)
         {
             GameManager.gm.ActivateSlowMotionEffect();
         }
@@ -208,15 +191,15 @@ public class UIManager : MonoBehaviour
 
     public void HandlePhaseThroughEffect()
     {
-        if (GameManager.gm.gameOver)
+        if (GameManager.gm.IsGameOver)
         {
             return;
         }
-        if (GameManager.gm.phaseThrough)
+        if (GameManager.gm.PhaseThrough)
         {
             GameManager.gm.DeactivatePhaseThroughEffect();
         }
-        else if (!GameManager.gm.slowMotion)
+        else if (!GameManager.gm.SlowMotion)
         {
             GameManager.gm.ActivatePhaseThroughEffect();
         }
@@ -229,13 +212,13 @@ public class UIManager : MonoBehaviour
 
     public void HandleOptionsButton()
     {
-        source.PlayOneShot(buttonClip);
+        AudioManager.instance.ButtonClicked();
         optionsPanel.SetActive(true);
     }
 
     public void HandleBackButton()
     {
-        source.PlayOneShot(buttonClip);
+        AudioManager.instance.ButtonClicked();
         optionsPanel.SetActive(false);
     }
 
@@ -244,8 +227,8 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void HandleExitButton()
     {
-        source.PlayOneShot(buttonClip);
-        Invoke("Exit", buttonClip.length);
+        AudioManager.instance.ButtonClicked();
+        Invoke("Exit", 0.5f);
     }
 
     void Exit()

@@ -28,12 +28,12 @@ public class GameManager : MonoBehaviour
     /// The Vignette Color for the Slow Motion Effect
     /// </summary>
     [Tooltip("Provide a Color of the Vignette for the Slow Motion Effect")]
-    public Color slowMotionColor;
+    [SerializeField] Color slowMotionColor;
 
     /// <summary>
     /// Shows the Slow Motion Power that has been used
     /// </summary>
-    [HideInInspector] public float slowMotionPower;
+    float slowMotionPower;
 
     bool increaseSlowMotion = false;
 
@@ -47,12 +47,12 @@ public class GameManager : MonoBehaviour
     /// The Vignette Color for the Phase Through Effect
     /// </summary>
     [Tooltip("Provide a Color of the Vignette for the Slow Motion Effect")]
-    public Color phaseThroughColor;
+    [SerializeField] Color phaseThroughColor;
 
     /// <summary>
     /// Shows the Phase Through Power that has been used
     /// </summary>
-    [HideInInspector] public float phaseThroughPower;
+    float phaseThroughPower;
 
     bool increasePhaseThrough = false;
 
@@ -68,12 +68,12 @@ public class GameManager : MonoBehaviour
     /// The Starting Movement Speed of the track
     /// </summary>
     [Tooltip("What should be the Movement Speed of the track")]
-    public float startTrackMoveSpeed = 20f;
+    [SerializeField] float startTrackMoveSpeed = 20f;
 
     /// <summary>
     /// The Current Movement Speed og the Track
     /// </summary>
-    [HideInInspector] public float trackMoveSpeed;
+    float trackMoveSpeed;
 
     [Tooltip("How much Speed should be incremented after some time")]
     [SerializeField] float speedIncrementer = 2f;
@@ -84,39 +84,108 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] Timer pauseTimer;
 
+    [Header("For the Obstacles")]
+    [SerializeField] int minObstaclesPerTrack = 5;
+    [SerializeField] int maxObstaclesPerTrack = 10;
+
+    int minObstacles;
+    int maxObstacles;
+
+    [SerializeField] int obstacleIncreaser = 2;
+
     SpaceshipController playerController;
 
     UIManager ui;
 
+    AudioManager audioManager;
+
     /// <summary>
     /// Should we destroy the tracks?
     /// </summary>
-    [HideInInspector] public bool destroyTracks = false;
+    bool destroyTracks = false;
 
     /// <summary>
     /// Is the Phase Through Effect Active?
     /// </summary>
-    [HideInInspector] public bool phaseThrough = false;
+    bool phaseThrough = false;
 
     /// <summary>
     /// Is the Slow Motion Effect Active?
     /// </summary>
-    [HideInInspector] public bool slowMotion = false;
+    bool slowMotion = false;
 
     /// <summary>
     /// Is the game Over?
     /// </summary>
-    [HideInInspector] public bool gameOver = false;
+    bool gameOver = false;
 
     /// <summary>
     /// Is the game paused?
     /// </summary>
-    [HideInInspector] public bool paused = false;
+    bool paused = false;
 
     /// <summary>
     /// How many times has the game been paused
     /// </summary>
-    [HideInInspector] public int timesPaused = 0;
+    int timesPaused = 0;
+
+    public float SlowMotionPower
+    {
+        get { return slowMotionPower; }
+    }
+
+    public float PhaseThroughPower
+    {
+        get { return phaseThroughPower; }
+    }
+
+    public float TrackMoveSpeed
+    {
+        get { return trackMoveSpeed; }
+        set { trackMoveSpeed = value; }
+    }
+
+    public int MinObstaclesPerTrack
+    {
+        get { return minObstacles; }
+    }
+
+    public int MaxObstaclesPerTrack
+    {
+        get { return maxObstacles; }
+    }
+
+    public bool DestroyTracks
+    {
+        get { return destroyTracks; }
+    }
+
+    public bool PhaseThrough
+    {
+        get { return phaseThrough; }
+    }
+
+    public bool SlowMotion
+    {
+        get { return slowMotion; }
+    }
+
+    public bool IsGameOver
+    {
+        get { return gameOver; }
+        set { gameOver = value; }
+    }
+
+    public bool Paused
+    {
+        get { return paused; }
+        set { paused = value; }
+    }
+
+    public int TimesPaused
+    {
+        get { return timesPaused; }
+    }
 
     void Awake()
     { 
@@ -131,6 +200,11 @@ public class GameManager : MonoBehaviour
         }
 
         ui = FindObjectOfType<UIManager>();
+
+        audioManager = FindObjectOfType<AudioManager>();
+
+        minObstacles = minObstaclesPerTrack;
+        maxObstacles = maxObstaclesPerTrack;
     }
 
     void Start()
@@ -166,6 +240,8 @@ public class GameManager : MonoBehaviour
         timesPaused = 0;
         pauseTimer.Initiate();
         timesPaused++;
+
+        TrackCreator();
     }
 
     void Update()
@@ -194,7 +270,7 @@ public class GameManager : MonoBehaviour
             {
                 slowMotionPower = vignette.intensity.max;
                 DeactivateSlowMotionEffect();
-                playerController.DeactivateSpecialEffectSound();
+                audioManager.DeactivateSpecialEffectSound();
             }
                     
             vignette.intensity.value = slowMotionPower;
@@ -217,7 +293,7 @@ public class GameManager : MonoBehaviour
             {
                 phaseThroughPower = vignette.intensity.max;
                 DeactivatePhaseThroughEffect();
-                playerController.DeactivateSpecialEffectSound();
+                audioManager.DeactivateSpecialEffectSound();
             }
 
             vignette.intensity.value = phaseThroughPower;
@@ -232,11 +308,6 @@ public class GameManager : MonoBehaviour
 
             vignette.intensity.value = phaseThroughPower;
         }
-    }
-
-    void OnEnable()
-    {
-        PlayAgain();
     }
 
     /// <summary>
@@ -263,6 +334,12 @@ public class GameManager : MonoBehaviour
         {
             track.GetComponent<ObstacleGenerator>().generateObstacles = false;
         }
+    }
+
+    public void TrackDestroyed()
+    {
+        minObstacles = minObstacles + obstacleIncreaser;
+        maxObstacles = maxObstacles + obstacleIncreaser;
     }
 
     public void Pause()
@@ -296,6 +373,8 @@ public class GameManager : MonoBehaviour
         phaseThrough = false;
         slowMotion = false;
 
+        audioManager.GameOver();
+
         DeactivateSlowMotionEffect();
 
         DeactivatePhaseThroughEffect();
@@ -307,6 +386,9 @@ public class GameManager : MonoBehaviour
     public void PlayAgain()
     {
         gameOver = false;
+
+        minObstacles = minObstaclesPerTrack;
+        maxObstacles = maxObstaclesPerTrack;
 
         Time.timeScale = 1;
         
@@ -335,6 +417,7 @@ public class GameManager : MonoBehaviour
         
         TrackCreator();
         playerController.PlayAgain();
+        audioManager.PlayAgain();
     }
 
     /// <summary>
@@ -342,7 +425,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void ActivateSlowMotionEffect()
     {
-        playerController.ActivateSpecialEffectSound();
+        audioManager.ActivateSpecialEffectSound();
 
         trackMoveSpeed /= 2;
 
@@ -363,7 +446,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void DeactivateSlowMotionEffect()
     {
-        playerController.DeactivateSpecialEffectSound();
+        audioManager.DeactivateSpecialEffectSound();
 
         trackMoveSpeed *= 2;
 
@@ -380,7 +463,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void ActivatePhaseThroughEffect()
     {
-        playerController.ActivateSpecialEffectSound();
+        audioManager.ActivateSpecialEffectSound();
 
         whiteBalance.tint.value = whiteBalance.tint.max;
         whiteBalance.active = true;
@@ -399,7 +482,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void DeactivatePhaseThroughEffect()
     {
-        playerController.DeactivateSpecialEffectSound();
+        audioManager.DeactivateSpecialEffectSound();
 
         whiteBalance.tint.value = 0;
         whiteBalance.active = false;
