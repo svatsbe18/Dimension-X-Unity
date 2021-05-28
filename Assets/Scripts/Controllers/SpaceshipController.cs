@@ -15,7 +15,13 @@ public class SpaceshipController : MonoBehaviour
     [Tooltip("Reference to the exhaust of the spaceship")]
     [SerializeField] GameObject spaceshipExhaust;
 
+    [Header("Guns")]
+
+    [SerializeField] ParticleSystem leftGun;
+    [SerializeField] ParticleSystem rightGun;
+
     [Header("Audio of the ship")]
+
     [Tooltip("Reference to the Audio Source of the spaceship")]
     [SerializeField] AudioSource spaceshipAudio;
 
@@ -33,6 +39,8 @@ public class SpaceshipController : MonoBehaviour
 
     Vector3 initialPosition;
 
+    float lastShotTime = 0;
+
     /// <summary>
     /// For getting and setting the move speed of the player (spaceship)
     /// </summary>
@@ -48,6 +56,8 @@ public class SpaceshipController : MonoBehaviour
         spaceshipExhaust.SetActive(true);
 
         initialPosition = transform.position;
+
+        lastShotTime = Time.time;
     }
 
     void Update()
@@ -132,6 +142,31 @@ public class SpaceshipController : MonoBehaviour
                 GameManager.gm.ActivatePhaseThroughEffect();
             }
         }
+
+        if (Input.GetKey(KeyCode.Space))
+        {
+            Fire();
+        }
+    }
+
+    void Fire()
+    {
+        if(Time.time>=lastShotTime+GameManager.gm.ReloadTime)
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(leftGun.transform.position, leftGun.transform.forward, out hit, GameManager.gm.ShootRange))
+            {
+                leftGun.Play(true);
+                Destroy(hit.transform.gameObject);
+            }
+
+            if (Physics.Raycast(rightGun.transform.position, rightGun.transform.forward, out hit, GameManager.gm.ShootRange))
+            {
+                rightGun.Play(true);
+                Destroy(hit.transform.gameObject);
+            }
+            lastShotTime = Time.time;
+        }
     }
 
     void ClampPosition()
@@ -157,6 +192,7 @@ public class SpaceshipController : MonoBehaviour
         moveSpeed = initialMoveSpeed;
         transform.position = initialPosition;
         spaceshipExhaust.SetActive(true);
+        lastShotTime = Time.time;
     }
 
     void GameOver()
@@ -167,7 +203,7 @@ public class SpaceshipController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         //To check wether we have collided with an obstacle
-        if (other.gameObject.tag == "Obstacle")
+        if (other.gameObject.CompareTag("Obstacle"))
         {
             if (!GameManager.gm.PhaseThrough)
             {
@@ -181,29 +217,25 @@ public class SpaceshipController : MonoBehaviour
             }
         }
 
-        if (other.gameObject.tag == "LeftBorder")
+        if (other.gameObject.CompareTag("LeftBorder"))
         {
-            Debug.Log("LeftBorder");
             canMoveLeft = false;
         }
 
-        if (other.gameObject.tag == "RightBorder")
+        if (other.gameObject.CompareTag("RightBorder"))
         {
-            Debug.Log("RightBorder");
             canMoveRight = false;
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "LeftBorder")
+        if (other.gameObject.CompareTag("LeftBorder"))
         {
-            Debug.Log("LeftBorder");
             canMoveLeft = true;
         }
-        if (other.gameObject.tag == "RightBorder")
+        if (other.gameObject.CompareTag("RightBorder"))
         {
-            Debug.Log("RightBorder");
             canMoveRight = true;
         }
     }

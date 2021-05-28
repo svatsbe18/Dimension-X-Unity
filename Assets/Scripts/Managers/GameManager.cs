@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
     Vignette vignette;
     WhiteBalance whiteBalance;
 
+    [Header("Slow Motion Effect")]
+
     /// <summary>
     /// The Vignette Color for the Slow Motion Effect
     /// </summary>
@@ -42,6 +44,8 @@ public class GameManager : MonoBehaviour
 
     [Tooltip("How long to regenerate the Slow Motion Effect")]
     [SerializeField] float slowMotionRegenerationTime = 20f;
+
+    [Header("Phase Through Effect")]
 
     /// <summary>
     /// The Vignette Color for the Phase Through Effect
@@ -62,7 +66,15 @@ public class GameManager : MonoBehaviour
     [Tooltip("How long to regenerate the Phase Through Effect")]
     [SerializeField] float phaseThroughRegenerationTime = 20f;
 
-    //Controlling The Track Movement Speed
+    [Header("Shooting")]
+
+    [Tooltip("Time to reload the gun after shooting")]
+    [SerializeField] float reloadTime = 10;
+
+    [Tooltip("The range of the gun fire")]
+    [SerializeField] float shootRange = 100;
+
+    [Header("Track Movement Speed")]
 
     /// <summary>
     /// The Starting Movement Speed of the track
@@ -85,6 +97,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] Timer pauseTimer;
 
     [Header("For the Obstacles")]
+
     [SerializeField] int minObstaclesPerTrack = 5;
     [SerializeField] int maxObstaclesPerTrack = 10;
 
@@ -137,6 +150,16 @@ public class GameManager : MonoBehaviour
     public float PhaseThroughPower
     {
         get { return phaseThroughPower; }
+    }
+
+    public float ReloadTime
+    {
+        get { return reloadTime; }
+    }
+
+    public float ShootRange
+    {
+        get { return shootRange; }
     }
 
     public float TrackMoveSpeed
