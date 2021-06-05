@@ -15,10 +15,10 @@ public class SpaceshipController : MonoBehaviour
     [Tooltip("Reference to the exhaust of the spaceship")]
     [SerializeField] GameObject spaceshipExhaust;
 
-    [Header("Guns")]
+    [Header("Laser")]
 
-    [SerializeField] ParticleSystem leftGun;
-    [SerializeField] ParticleSystem rightGun;
+    [SerializeField] GameObject leftLaser;
+    [SerializeField] GameObject rightLaser;
 
     [Header("Audio of the ship")]
 
@@ -58,13 +58,22 @@ public class SpaceshipController : MonoBehaviour
         initialPosition = transform.position;
 
         lastShotTime = Time.time;
+
+        leftLaser.SetActive(false);
+
+        rightLaser.SetActive(false);
     }
 
     void Update()
     {
-        TouchInput();
-
-        HardwareInput();
+        if (Application.isMobilePlatform)
+        {
+            TouchInput();
+        }
+        else
+        {
+            HardwareInput();
+        }
 
         ClampPosition();
 
@@ -143,6 +152,11 @@ public class SpaceshipController : MonoBehaviour
             }
         }
 
+        if(Time.time>=lastShotTime+GameManager.gm.ReloadTime)
+        {
+            GameManager.gm.BulletLoaded();
+        }
+
         if (Input.GetKey(KeyCode.Space))
         {
             Fire();
@@ -154,18 +168,21 @@ public class SpaceshipController : MonoBehaviour
         if(Time.time>=lastShotTime+GameManager.gm.ReloadTime)
         {
             RaycastHit hit;
-            if (Physics.Raycast(leftGun.transform.position, leftGun.transform.forward, out hit, GameManager.gm.ShootRange))
+            if (Physics.Raycast(leftLaser.transform.position, leftLaser.transform.right, out hit, GameManager.gm.ShootRange))
             {
-                leftGun.Play(true);
-                Destroy(hit.transform.gameObject);
+                Debug.Log(hit.transform.gameObject);
+                hit.transform.gameObject.GetComponent<ObstacleScript>().Destruct();
             }
 
-            if (Physics.Raycast(rightGun.transform.position, rightGun.transform.forward, out hit, GameManager.gm.ShootRange))
+            if (Physics.Raycast(rightLaser.transform.position, rightLaser.transform.right, out hit, GameManager.gm.ShootRange))
             {
-                rightGun.Play(true);
-                Destroy(hit.transform.gameObject);
+                Debug.Log(hit.transform.gameObject);
+                hit.transform.gameObject.GetComponent<ObstacleScript>().Destruct();
             }
+            leftLaser.SetActive(true);
+            rightLaser.SetActive(true);
             lastShotTime = Time.time;
+            GameManager.gm.BulletFired();
         }
     }
 
@@ -193,6 +210,8 @@ public class SpaceshipController : MonoBehaviour
         transform.position = initialPosition;
         spaceshipExhaust.SetActive(true);
         lastShotTime = Time.time;
+        leftLaser.SetActive(false);
+        rightLaser.SetActive(false);
     }
 
     void GameOver()

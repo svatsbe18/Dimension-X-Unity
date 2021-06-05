@@ -333,6 +333,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void BulletLoaded()
+    {
+        ui.BulletLoaded();
+    }
+
+    public void BulletFired()
+    {
+        ui.BulletFired();
+    }
+
     /// <summary>
     /// For Creating the entire track when the game is instantiated
     /// </summary>

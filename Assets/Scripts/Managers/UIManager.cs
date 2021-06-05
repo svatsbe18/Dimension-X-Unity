@@ -22,6 +22,8 @@ public class UIManager : MonoBehaviour
     [Tooltip("The slider component to show the remaining power of the Phase Through Effect")]
     [SerializeField] Slider phaseThroughBar;
 
+    [SerializeField] GameObject bullet;
+
     [Tooltip("The Panel that drops off when the game is over")]
     [SerializeField] GameObject gameOverPanel;
 
@@ -64,6 +66,8 @@ public class UIManager : MonoBehaviour
         gameOverPanel.SetActive(false);
         optionsPanel.SetActive(false);
         pauseMenu.SetActive(false);
+
+        bullet.SetActive(false);
 
         phaseThroughAnimator = phaseThroughBar.gameObject.GetComponent<Animator>();
         slowMotionAnimator = slowMotionBar.gameObject.GetComponent<Animator>();
@@ -163,6 +167,7 @@ public class UIManager : MonoBehaviour
 
         highScoreText.text = "High Score : " + highScore;
         gameOverPanel.SetActive(false);
+        bullet.SetActive(false);
 
         GameManager.gm.PlayAgain();
     }
@@ -203,6 +208,16 @@ public class UIManager : MonoBehaviour
         {
             GameManager.gm.ActivatePhaseThroughEffect();
         }
+    }
+
+    public void BulletLoaded()
+    {
+        bullet.SetActive(true);
+    }
+
+    public void BulletFired()
+    {
+        bullet.SetActive(false);
     }
 
     public void HandlePauseButton()
