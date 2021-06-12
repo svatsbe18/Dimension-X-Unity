@@ -343,6 +343,11 @@ public class GameManager : MonoBehaviour
         ui.BulletFired();
     }
 
+    public void FireBullet()
+    {
+        playerController.Fire();
+    }
+
     /// <summary>
     /// For Creating the entire track when the game is instantiated
     /// </summary>

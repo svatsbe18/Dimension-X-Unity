@@ -163,7 +163,7 @@ public class SpaceshipController : MonoBehaviour
         }
     }
 
-    void Fire()
+    public void Fire()
     {
         if(Time.time>=lastShotTime+GameManager.gm.ReloadTime)
         {

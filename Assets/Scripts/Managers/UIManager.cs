@@ -220,6 +220,11 @@ public class UIManager : MonoBehaviour
         bullet.SetActive(false);
     }
 
+    public void HandleBulletButton()
+    {
+        GameManager.gm.FireBullet();
+    }
+
     public void HandlePauseButton()
     {
         GameManager.gm.Pause();
